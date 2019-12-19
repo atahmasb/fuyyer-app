@@ -96,6 +96,12 @@ p.lead {
     margin-right: 10px;
 }
 
+#delete-button {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+                width: 200px;
+              }
 ul.items {
   list-style: none;
   padding: 0;
