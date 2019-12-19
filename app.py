@@ -6,7 +6,7 @@ import sys
 import json
 import dateutil.parser
 import babel
-from flask import Flask, render_template, request, Response, flash, redirect, url_for, abort
+from flask import Flask, render_template, request, Response, flash, redirect, url_for, abort, jsonify
 from flask_migrate import Migrate
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
@@ -43,7 +43,7 @@ class Venue(db.Model):
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
     genres = db.Column(db.String(), nullable=False)
-    shows = db.relationship('Show', backref='list', lazy=True)
+    shows = db.relationship('Show', backref='list', lazy=True, cascade="all,delete")
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 class Show(db.Model):
@@ -105,7 +105,7 @@ def venues():
     data = []
     cities = {}
 
-    venues = Venue.query.join(Show).all()
+    venues = Venue.query.all()
     for venue in venues:
         if venue.city not in cities:
 
@@ -223,7 +223,15 @@ def delete_venue(venue_id):
 
     # BONUS CHALLENGE: Implement a button to delete a Venue on a Venue Page, have it so that
     # clicking that button delete it from the db then redirect the user to the homepage
-    return None
+    try:
+        Venue.query.filter_by(id=venue_id).delete()
+        db.session.commit()
+    except:
+        db.session.rollback()
+        print('yes')
+    finally:
+        db.session.close()
+    return jsonify({'success': True})
 
 #  Artists
 #  ----------------------------------------------------------------
