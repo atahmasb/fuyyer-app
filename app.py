@@ -43,15 +43,15 @@ class Venue(db.Model):
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
     genres = db.Column(db.String(), nullable=False)
-    shows = db.relationship('Show', backref='list', lazy=True, cascade="all,delete")
+    shows = db.relationship('Show', backref='list', lazy=True)
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 class Show(db.Model):
     __tablename__ = 'show'
     id = db.Column(db.Integer, primary_key=True)
     start_time = db.Column(db.TIMESTAMP, nullable=False)
-    venue_id = db.Column(db.Integer, db.ForeignKey('venue.id'), nullable=False)
-    artist_id = db.Column(db.Integer, db.ForeignKey('artist.id'), nullable=False)
+    venue_id = db.Column(db.Integer, db.ForeignKey('venue.id', ondelete="CASCADE"), nullable=False)
+    artist_id = db.Column(db.Integer, db.ForeignKey('artist.id', ondelete="CASCADE"), nullable=False)
 
 class Artist(db.Model):
     __tablename__ = 'artist'
@@ -64,7 +64,7 @@ class Artist(db.Model):
     genres = db.Column(db.String(120), nullable=False)
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
-    show = db.relationship('Show', backref='shows_list', lazy=True)
+    show = db.relationship('Show', backref='shows_list', lazy=True, cascade="all, delete-orphan")
 
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
@@ -226,9 +226,9 @@ def delete_venue(venue_id):
     try:
         Venue.query.filter_by(id=venue_id).delete()
         db.session.commit()
-    except:
+    except Exception as e:
         db.session.rollback()
-        print('yes')
+        print(e)
     finally:
         db.session.close()
     return jsonify({'success': True})
