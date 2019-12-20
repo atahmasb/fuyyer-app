@@ -1,6 +1,7 @@
+import phonenumbers
 from datetime import datetime
 from flask_wtf import Form
-from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField, BooleanField
+from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField, BooleanField, validators, ValidationError
 from wtforms.validators import DataRequired, AnyOf, URL
 from enum import Enum
 
@@ -18,6 +19,27 @@ class VenueFields(Enum):
     SEEKING_DESCRIPTION = 'seeking description'
 
 
+class ArtistFields(Enum):
+    NAME = 'name'
+    CITY = 'city'
+    STATE = 'state'
+    ADDRESS = 'address'
+    PHONE  = 'phone'
+    IMAGE_LINK = 'image_link'
+    GENRES = 'genre'
+    FACEBOOK_LINK = 'facebook_link'
+    SEEKING_TALENT = 'seeking new talent'
+    SEEKING_DESCRIPTION = 'seeking description'
+    SEEKING_VENUE = 'seeking venue'
+
+
+def validate_phone(form, phone):
+    try:
+        p = phonenumbers.parse(phone.data)
+        if not phonenumbers.is_valid_number(p):
+            raise  ValidationError('Invalid phone number')
+    except (phonenumbers.phonenumberutil.NumberParseException, ValueError):
+        raise ValidationError('Invalid phone number')
 
 class ShowForm(Form):
     artist_id = StringField(
@@ -99,11 +121,9 @@ class VenueForm(Form):
         VenueFields.ADDRESS, validators=[DataRequired()]
     )
     phone = StringField(
-        VenueFields.PHONE
+        VenueFields.PHONE, validators=[DataRequired(), validate_phone]
     )
-    image_link = StringField(
-        VenueFields.IMAGE_LINK
-    )
+
     genres = SelectMultipleField(
         VenueFields.GENRES, validators=[DataRequired()],
         choices=[
@@ -131,23 +151,24 @@ class VenueForm(Form):
     facebook_link = StringField(
         VenueFields.FACEBOOK_LINK, validators=[URL()]
     )
-    seeking_talent =  BooleanField(
-        VenueFields.SEEKING_TALENT, validators=[DataRequired(), ])
+    seeking_talent = BooleanField(
+        VenueFields.SEEKING_TALENT, )
 
     seeking_description = StringField(
-        VenueFields.SEEKING_DESCRIPTION, validators=[DataRequired, ])
+        VenueFields.SEEKING_DESCRIPTION, validators=[validators.Length(min=10, max=500)])
     image_link = StringField(
-        VenueFields.IMAGE_LINK, validators=[DataRequired, ])
+        VenueFields.IMAGE_LINK, validators=[DataRequired, validators.Length(min=10, max=500)])
+
 
 class ArtistForm(Form):
     name = StringField(
-        'name', validators=[DataRequired()]
+       ArtistFields.NAME , validators=[DataRequired()]
     )
     city = StringField(
-        'city', validators=[DataRequired()]
+        ArtistFields.CITY, validators=[DataRequired()]
     )
     state = SelectField(
-        'state', validators=[DataRequired()],
+        ArtistFields.STATE, validators=[DataRequired()],
         choices=[
             ('AL', 'AL'),
             ('AK', 'AK'),
@@ -204,12 +225,12 @@ class ArtistForm(Form):
     )
     phone = StringField(
         # TODO implement validation logic for state
-        'phone'
+        ArtistFields.PHONE, validators=[DataRequired(), validate_phone]
     )
 
     genres = SelectMultipleField(
-        # TODO implement enum restriction
-        'genres', validators=[DataRequired()],
+
+        ArtistFields.GENRES, validators=[DataRequired()],
         choices=[
             ('Alternative', 'Alternative'),
             ('Blues', 'Blues'),
@@ -233,8 +254,21 @@ class ArtistForm(Form):
         ]
     )
     facebook_link = StringField(
-        # TODO implement enum restriction
-        'facebook_link', validators=[URL()]
+        ArtistFields.FACEBOOK_LINK, validators=[URL()]
     )
+    seeking_venue = BooleanField(
+        ArtistFields.SEEKING_VENUE)
+
+    seeking_description = StringField(
+        ArtistFields.SEEKING_DESCRIPTION, validators=[validators.Length(min=10, max=500)])
+
+
+    # def validate_phone(self, phone):
+    #     try:
+    #         p = phonenumbers.parse(phone.data)
+    #         if not phonenumbers.is_valid_number(p):
+    #             raise ValueError()
+    #     except (phonenumbers.phonenumberutil.NumberParseException, ValueError):
+    #         raise ValidationError('Invalid phone number')
 
 # TODO IMPLEMENT NEW ARTIST FORM AND NEW SHOW FORM

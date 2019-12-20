@@ -43,6 +43,8 @@ class Venue(db.Model):
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
     genres = db.Column(db.String(), nullable=False)
+    seeking_talent = db.Column(db.Boolean, nullable=True)
+    seeking_description = db.Column(db.String(500), nullable=True)
     shows = db.relationship('Show', backref='list', lazy=True)
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
@@ -66,6 +68,8 @@ class Artist(db.Model):
     genres = db.Column(db.String(120), nullable=False)
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
+    seeking_venue = db.Column(db.Boolean, nullable=True)
+    seeking_description = db.Column(db.String(500), nullable=True)
     show = db.relationship('Show', backref='shows_list', lazy=True, cascade="all, delete-orphan")
 
 
