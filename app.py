@@ -11,16 +11,18 @@ from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
 import logging
 from logging import Formatter, FileHandler
-from datetime import datetime
+from config import DevelopmentConfig
 from forms import *
 #----------------------------------------------------------------------------#
 # App Config.
 #----------------------------------------------------------------------------#
 app = Flask(__name__)
+app.config.from_object(DevelopmentConfig)
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI', 'postgres://amirtahmasbi@localhost:5432/fuyyerapp')
+app.config['SECRET_KEY'] = 'any secret string'
+
 moment = Moment(app)
 db = SQLAlchemy(app)
-app.config['SQL_ALCHEMY_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI', 'postgres://amirtahmasbi@localhost:5432/fuyyerapp')
-
 #----------------------------------------------------------------------------#
 # Models.
 #----------------------------------------------------------------------------#
@@ -193,7 +195,9 @@ def create_venue_form():
 def create_venue_submission():
 
     form = VenueForm(request.form)
+
     if form.validate():
+        print('*'*100)
         request_data = request.form
         data = {}
         data['name'] = request_data['name'] or None
@@ -223,6 +227,7 @@ def create_venue_submission():
 
         return redirect(url_for('index'))
     else:
+        print(form.errors)
         message = ''
         for key in form.errors.keys():
             message += key + ', '
@@ -377,7 +382,7 @@ def edit_artist_submission(artist_id):
         for key in form.errors.keys():
             message += key + ', '
         flash(f'form is not valid, make sure {message} are entered correctly.')
-        return redirect(url_for('edit_artist'))
+        return redirect(url_for('edit_artist', artist_id=artist_id))
 
 
 @app.route('/venues/<int:venue_id>/edit', methods=['GET'])
@@ -456,7 +461,7 @@ def edit_venue_submission(venue_id):
         for key in form.errors.keys():
             message += key + ', '
         flash(f'form is not valid, make sure {message} are entered correctly.')
-        return redirect(url_for('edit_venue'))
+        return redirect(url_for('edit_venue', venue_id=venue_id))
 
 #  Create Artist
 #  ----------------------------------------------------------------
@@ -591,7 +596,7 @@ if not app.debug:
 
 # Default port:
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
 
 # Or specify port manually:
 '''

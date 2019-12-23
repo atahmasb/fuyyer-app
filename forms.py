@@ -36,11 +36,9 @@ class ArtistFields(Enum):
 
 
 def validate_phone(form, phone):
-    try:
-        p = phonenumbers.parse(phone.data)
-        if not phonenumbers.is_valid_number(p):
-            raise  ValidationError('Invalid phone number')
-    except (phonenumbers.phonenumberutil.NumberParseException, ValueError):
+
+    p = phonenumbers.parse(phone.data)
+    if not phonenumbers.is_valid_number(p):
         raise ValidationError('Invalid phone number')
 
 class ShowForm(Form):
@@ -153,15 +151,9 @@ class VenueForm(Form):
     facebook_link = StringField(
         VenueFields.FACEBOOK_LINK, validators=[URL()]
     )
-    seeking_talent = BooleanField(
-        VenueFields.SEEKING_TALENT, )
 
-    seeking_description = StringField(
-        VenueFields.SEEKING_DESCRIPTION, validators=[validators.Length(min=10, max=500)])
-    image_link = StringField(
-        VenueFields.IMAGE_LINK, validators=[DataRequired, validators.Length(min=10, max=500)])
-    website = StringField(
-        VenueFields.WEBSITE, validators=[DataRequired, validators.Length( max=120)])
+
+
 
 
 class EditVenueForm(Form):
@@ -231,7 +223,7 @@ class EditVenueForm(Form):
         VenueFields.ADDRESS
     )
     phone = StringField(
-        VenueFields.PHONE, validators=[validate_phone]
+        VenueFields.PHONE, validators=[validators.Optional(), validate_phone]
     )
 
     genres = SelectMultipleField(
@@ -260,17 +252,17 @@ class EditVenueForm(Form):
         ]
     )
     facebook_link = StringField(
-        VenueFields.FACEBOOK_LINK, validators=[URL()]
+        VenueFields.FACEBOOK_LINK, validators=[validators.Optional(), URL()]
     )
     seeking_talent = BooleanField(
-        VenueFields.SEEKING_TALENT )
+        VenueFields.SEEKING_TALENT, validators=[validators.Optional()] )
 
     seeking_description = StringField(
-        VenueFields.SEEKING_DESCRIPTION, validators=[validators.Length(min=10, max=500)])
+        VenueFields.SEEKING_DESCRIPTION, validators=[validators.Optional(), validators.Length(min=10, max=500)])
     image_link = StringField(
-        VenueFields.IMAGE_LINK, validators=[validators.Length(min=10, max=500)])
+        VenueFields.IMAGE_LINK, validators=[validators.Optional(), validators.Length(min=10, max=500)])
     website = StringField(
-        VenueFields.WEBSITE, validators=[validators.Length( max=120)])
+        VenueFields.WEBSITE, validators=[validators.Optional(), validators.Length( max=120)])
 
 
 class ArtistForm(Form):
@@ -377,7 +369,7 @@ class EditArtistForm(Form):
         ArtistFields.CITY
     )
     website = StringField(
-        ArtistFields.WEBSITE, validators=[validators.Length(max=120)])
+        ArtistFields.WEBSITE, validators=[validators.Optional(), validators.Length(max=120)])
     state = SelectField(
         ArtistFields.STATE,
         choices=[
@@ -435,7 +427,7 @@ class EditArtistForm(Form):
         ]
     )
     phone = StringField(
-        ArtistFields.PHONE, validators=[validate_phone]
+        ArtistFields.PHONE, validators=[validators.Optional(), validate_phone]
     )
 
     genres = SelectMultipleField(
@@ -464,10 +456,10 @@ class EditArtistForm(Form):
         ]
     )
     facebook_link = StringField(
-        ArtistFields.FACEBOOK_LINK, validators=[URL()]
+        ArtistFields.FACEBOOK_LINK, validators=[validators.Optional(), URL()]
     )
     seeking_venue = BooleanField(
-        ArtistFields.SEEKING_VENUE)
+        ArtistFields.SEEKING_VENUE, validators=[validators.Optional()])
 
     seeking_description = StringField(
-        ArtistFields.SEEKING_DESCRIPTION, validators=[validators.Length(min=10, max=500)])
+        ArtistFields.SEEKING_DESCRIPTION, validators=[validators.Optional(), validators.Length(min=10, max=500)])
