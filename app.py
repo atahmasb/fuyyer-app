@@ -3,7 +3,6 @@
 #----------------------------------------------------------------------------#
 import os
 import sys
-import json
 import dateutil.parser
 import babel
 from flask import Flask, render_template, request, Response, flash, redirect, url_for, abort, jsonify
@@ -12,17 +11,13 @@ from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
 import logging
 from logging import Formatter, FileHandler
-from flask_wtf import Form
 from datetime import datetime
-from sqlalchemy import func
 from forms import *
 #----------------------------------------------------------------------------#
 # App Config.
 #----------------------------------------------------------------------------#
-print(os.environ['APP_SETTINGS'])
 app = Flask(__name__)
 moment = Moment(app)
-app.config.from_object(os.environ['APP_SETTINGS'])
 db = SQLAlchemy(app)
 app.config['SQL_ALCHEMY_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI', 'postgres://amirtahmasbi@localhost:5432/fuyyerapp')
 
@@ -48,6 +43,7 @@ class Venue(db.Model):
     seeking_description = db.Column(db.String(500), nullable=True)
     shows = db.relationship('Show', backref='list', lazy=True)
 
+
 class Show(db.Model):
     __tablename__ = 'show'
     id = db.Column(db.Integer, primary_key=True)
@@ -56,6 +52,7 @@ class Show(db.Model):
     artist_id = db.Column(db.Integer, db.ForeignKey('artist.id', ondelete="CASCADE"), nullable=False)
     venue = db.relationship("Venue", backref="venue")
     artist = db.relationship("Artist", backref="artsit")
+
 
 class Artist(db.Model):
     __tablename__ = 'artist'
@@ -74,11 +71,11 @@ class Artist(db.Model):
     show = db.relationship('Show', backref='shows_list', lazy=True, cascade="all, delete-orphan")
 
 
-
 migrate = Migrate(app, db)
 #----------------------------------------------------------------------------#
 # Filters.
 #----------------------------------------------------------------------------#
+
 
 def format_datetime(value, format='medium'):
     date = dateutil.parser.parse(value)
@@ -88,11 +85,13 @@ def format_datetime(value, format='medium'):
         format="EE MM, dd, y h:mma"
     return babel.dates.format_datetime(date, format)
 
+
 app.jinja_env.filters['datetime'] = format_datetime
 
 #----------------------------------------------------------------------------#
 # Controllers.
 #----------------------------------------------------------------------------#
+
 
 @app.route('/')
 def index():
@@ -135,6 +134,7 @@ def venues():
             )
     return render_template('pages/venues.html', areas=data)
 
+
 @app.route('/venues/search', methods=['POST'])
 def search_venues():
 
@@ -152,6 +152,7 @@ def search_venues():
         response['data'] += data
 
     return render_template('pages/search_venues.html', results=response, search_term=search_term)
+
 
 @app.route('/venues/<int:venue_id>')
 def show_venue(venue_id):
@@ -181,6 +182,7 @@ def show_venue(venue_id):
 
 #  Create Venue
 #  ----------------------------------------------------------------
+
 
 @app.route('/venues/create', methods=['GET'])
 def create_venue_form():
@@ -227,6 +229,7 @@ def create_venue_submission():
         flash(f'form is not valid, make sure {message} are entered correctly.')
         return redirect(url_for('create_venue_form'))
 
+
 @app.route('/venues/<venue_id>', methods=['DELETE'])
 def delete_venue(venue_id):
     # SQLAlchemy ORM to delete a record. Handle cases where the session commit could fail.
@@ -257,6 +260,7 @@ def artists():
 
     return render_template('pages/artists.html', artists=data)
 
+
 @app.route('/artists/search', methods=['POST'])
 def search_artists():
     # seach for "A" should return "Guns N Petals", "Matt Quevado", and "The Wild Sax Band".
@@ -275,6 +279,7 @@ def search_artists():
         response['data'] += data
 
     return render_template('pages/search_artists.html', results=response, search_term=request.form.get('search_term', ''))
+
 
 @app.route('/artists/<int:artist_id>')
 def show_artist(artist_id):
@@ -321,6 +326,7 @@ def edit_artist(artist_id):
         "image_link": artist.image_link
     }
     return render_template('forms/edit_artist.html', form=form, artist=artist)
+
 
 @app.route('/artists/<int:artist_id>/edit', methods=['POST'])
 def edit_artist_submission(artist_id):
@@ -373,6 +379,7 @@ def edit_artist_submission(artist_id):
         flash(f'form is not valid, make sure {message} are entered correctly.')
         return redirect(url_for('edit_artist'))
 
+
 @app.route('/venues/<int:venue_id>/edit', methods=['GET'])
 def edit_venue(venue_id):
     venue = Venue.query.filter_by(id=venue_id).first()
@@ -395,6 +402,7 @@ def edit_venue(venue_id):
     }
 
     return render_template('forms/edit_venue.html', form=form, venue=venue)
+
 
 @app.route('/venues/<int:venue_id>/edit', methods=['POST'])
 def edit_venue_submission(venue_id):
@@ -453,6 +461,7 @@ def edit_venue_submission(venue_id):
 #  Create Artist
 #  ----------------------------------------------------------------
 
+
 @app.route('/artists/create', methods=['GET'])
 def create_artist_form():
     form = ArtistForm()
@@ -496,8 +505,6 @@ def create_artist_submission():
         return redirect(url_for('create_artist_form'))
 
 
-
-
 #  Shows
 #  ----------------------------------------------------------------
 
@@ -518,11 +525,13 @@ def shows():
 
     return render_template('pages/shows.html', shows=data)
 
+
 @app.route('/shows/create')
 def create_shows():
     # renders form. do not touch.
     form = ShowForm()
     return render_template('forms/new_show.html', form=form)
+
 
 @app.route('/shows/create', methods=['POST'])
 def create_show_submission():
@@ -556,8 +565,6 @@ def create_show_submission():
             message += key + ', '
         flash(f'form is not valid, make sure {message} are entered correctly.')
         return redirect(url_for('create_shows'))
-
-
 
 @app.errorhandler(404)
 def not_found_error(error):
