@@ -45,10 +45,10 @@ def validate_phone(form, phone):
 
 class ShowForm(Form):
     artist_id = StringField(
-        'artist_id'
+        'artist_id', validators=[DataRequired()]
     )
     venue_id = StringField(
-        'venue_id'
+        'venue_id', validators=[DataRequired()]
     )
     start_time = DateTimeField(
         'start_time',
@@ -280,8 +280,6 @@ class ArtistForm(Form):
     city = StringField(
         ArtistFields.CITY, validators=[DataRequired()]
     )
-    website = StringField(
-        ArtistFields.WEBSITE, validators=[DataRequired, validators.Length(max=120)])
     state = SelectField(
         ArtistFields.STATE, validators=[DataRequired()],
         choices=[
@@ -339,7 +337,6 @@ class ArtistForm(Form):
         ]
     )
     phone = StringField(
-        # TODO implement validation logic for state
         ArtistFields.PHONE, validators=[DataRequired(), validate_phone]
     )
 
@@ -371,11 +368,6 @@ class ArtistForm(Form):
     facebook_link = StringField(
         ArtistFields.FACEBOOK_LINK, validators=[URL()]
     )
-    seeking_venue = BooleanField(
-        ArtistFields.SEEKING_VENUE)
-
-    seeking_description = StringField(
-        ArtistFields.SEEKING_DESCRIPTION, validators=[validators.Length(min=10, max=500)])
 
 class EditArtistForm(Form):
     name = StringField(
@@ -479,6 +471,3 @@ class EditArtistForm(Form):
 
     seeking_description = StringField(
         ArtistFields.SEEKING_DESCRIPTION, validators=[validators.Length(min=10, max=500)])
-
-
-# TODO IMPLEMENT NEW ARTIST FORM AND NEW SHOW FORM
